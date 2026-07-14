@@ -33,9 +33,7 @@ enum ComparisonType : u16 {
     TRUE,   //1 1 1
     C_UNK,
 };
-
-struct MasterHeader {
-    u64 function_pointer;
+struct Entry {
     u64 loop_id;
     u64 start;
     u64 finish;
@@ -52,7 +50,14 @@ struct MasterHeader {
     bool hasLoopTerminates;
     bool hasExactExitCount;
     bool hasConstMaxExitCount;
-    bool hasTranslationTable;
+    bool hasTranslationTableStart;
+    bool hasTranslationTableFinish;
+    bool hasTranslationTableStride;
+};
+struct MasterHeader {
+    u64 function_pointer;
+    u64 entry_count;
+    Entry entries[entry_count];
 };
 // newest comment
 MasterHeader headers[while($ < std::mem::size())] @ 0x0;

@@ -5,9 +5,9 @@ import credentials
 bin_name = "hello.bpf.o"
 def main():
     # copy over the binary
+    os.system("rm -rf bin")
     os.system("mkdir bin")
     os.system("mkdir bin/sections")
-    os.system("rm bin/object.o")
 
     os.system("scp " + credentials.gitrepo + bin_name + " bin/object.o")
     output = subprocess.check_output(["objdump", "-h", "bin/object.o"])
