@@ -55,7 +55,8 @@ struct Entry {
     bool hasTranslationTableStride;
 };
 struct MasterHeader {
-    u64 function_pointer;
+    u32 function_pointer;
+    u32 function_length;
     u64 entry_count;
     Entry entries[entry_count];
 };

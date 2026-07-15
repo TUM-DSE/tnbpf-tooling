@@ -80,7 +80,8 @@ struct TypeForm {
 };
 
 struct MasterHeader {
-    u64 function_pointer;
+    u32 function_pointer;
+    u32 function_length;
     TypeForm type;
 };
 // newest comment
