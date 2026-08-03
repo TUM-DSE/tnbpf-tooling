@@ -33,6 +33,10 @@ enum ComparisonType : u16 {
     TRUE,   //1 1 1
     C_UNK,
 };
+struct Proof {
+    u64 latch_count;
+    u64 latches[latch_count];
+};
 struct Entry {
     u64 loop_id;
     u64 start;
@@ -53,6 +57,10 @@ struct Entry {
     bool hasTranslationTableStart;
     bool hasTranslationTableFinish;
     bool hasTranslationTableStride;
+    bool hasProof;
+    if (hasProof) {
+        Proof proof;
+    }
 };
 struct MasterHeader {
     u32 function_pointer;
