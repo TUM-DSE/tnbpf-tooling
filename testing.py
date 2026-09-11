@@ -8,7 +8,7 @@ def gather(test: unittest.TestCase, name):
     #test.assertIsNotNone(symbounds)
     test.assertIsNotNone(loopdb)
     test.assertIsNotNone(functiondb)
-    test.assertIsNotNone(ivdb)
+    #test.assertIsNotNone(ivdb)
     test.assertIsNotNone(sym_instr_db)
     return parsing.parsing.validate(test, symbounds, loopdb, functiondb, ivdb, sym_instr_db)
 

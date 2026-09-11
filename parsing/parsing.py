@@ -105,7 +105,7 @@ def validate(test: unittest.TestCase, symbounds: Dict[int, dict], loopdb: Dict[i
             test.assertSetEqual(expected_measures_loop_ids, encountered_measures_loop_ids)
 
         loopids_ivdb = set()
-        if func_ptr in ivdb:
+        if ivdb is not None and func_ptr in ivdb:
             test.assertEqual(functions[func_ptr]["fun_length"], ivdb[func_ptr]["fun_length"])
             for iv_entry in ivdb[func_ptr]["entries"]:
                 test.assertIn(iv_entry["loop_id"], loopids_valid)
@@ -121,14 +121,14 @@ def parse_pcsections(pcsections: Dict[str, bytes]):
     symbounds_raw = pcsections["pcsection_loopdb_symbounds"] if "pcsection_loopdb_symbounds" in pcsections else None
     loopdb_raw = pcsections["pcsection_loopdb_class"]
     functiondb_raw = pcsections["pcsection_functiondb"]
-    ivdb_raw = pcsections["pcsection_iv_db"]
+    ivdb_raw = pcsections["pcsection_iv_db"] if "pcsection_iv_db" in pcsections else None
     sym_instr_db_raw = pcsections["pcsection_sym_instr_db"]
 
-    symbounds = parse_loopdb_symbounds(ByteTape(symbounds_raw))
-    loopdb = parse_loopdb_class(ByteTape(loopdb_raw))
-    functiondb = parse_functiondb(ByteTape(functiondb_raw))
-    ivdb = parse_iv_db(ByteTape(ivdb_raw))
-    sym_instr_db = parse_sym_instr_db(ByteTape(sym_instr_db_raw))
+    symbounds = parse_loopdb_symbounds(ByteTape(symbounds_raw)) if symbounds_raw else None
+    loopdb = parse_loopdb_class(ByteTape(loopdb_raw)) if loopdb_raw else None
+    functiondb = parse_functiondb(ByteTape(functiondb_raw)) if functiondb_raw else None
+    ivdb = parse_iv_db(ByteTape(ivdb_raw)) if ivdb_raw else None
+    sym_instr_db = parse_sym_instr_db(ByteTape(sym_instr_db_raw)) if sym_instr_db_raw else None
 
     # Our primary entry point is the loopdb classifier:
     return symbounds, loopdb, functiondb, ivdb, sym_instr_db
