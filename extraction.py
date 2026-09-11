@@ -1,15 +1,16 @@
 import os
-import subprocess
-import credentials
+from typing import Dict
 
-bin_name = "ascending_generic.bpf.o"
-def main():
+import credentials
+import subprocess
+
+def fetch_pcsections(file_name: str) -> Dict[str, bytes]:
     # copy over the binary
     os.system("rm -rf bin")
     os.system("mkdir bin")
     os.system("mkdir bin/sections")
 
-    os.system("scp " + credentials.gitrepo + bin_name + " bin/object.o")
+    os.system("scp " + credentials.gitrepo + file_name + " bin/object.o")
     output = subprocess.check_output(["objdump", "-h", "bin/object.o"])
     decoded = [x.split()[1:] for x in output.decode().splitlines()[5:]][0::2]
     # TODO: this requires the file to have .bpf.c in its name!
@@ -29,7 +30,7 @@ def main():
         bpf_entries[i][0] = "pcsection" + bpf_entries[i][0][len(module_name):]
 
     print(bpf_entries)
-
+    sections = dict()
     with open("bin/object.o", "rb") as f:
         rawdata = f.read()
     for entry in bpf_entries:
@@ -38,8 +39,7 @@ def main():
         size = int(size, 16)
         file_off = int(file_off, 16)
         print(name, size, file_off)
-        with open("bin/sections/" + name + ".bin", "wb") as f:
-            f.write(rawdata[file_off:file_off+size])
+        sections[name] = rawdata[file_off:file_off+size]
 
-if __name__ == "__main__":
-    main()
+    print(sections)
+    return sections
