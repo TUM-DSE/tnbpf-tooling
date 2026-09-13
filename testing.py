@@ -3,7 +3,7 @@ from typing import Dict
 
 import parsing.parsing
 
-# https://stackoverflow.com/a/31631711
+# https://stackoverflow.com/a/31631711 , accessed on 13.09.2026
 def humanbytes(B):
     """Return the given bytes as a human friendly KB, MB, GB, or TB string."""
     B = float(B)
