@@ -15,6 +15,7 @@ def fetch_pcsections(file_name: str) -> Dict[str, bytes]:
     decoded = [x.split()[1:] for x in output.decode().splitlines()[5:]][0::2]
     # TODO: this requires the file to have .bpf.c in its name!
     bpf_entries = list(filter(lambda x: ".bpf.c" in x[0], decoded))
+    text_size_entry = list(filter(lambda x: x[0] == "tracepoint/syscalls/sys_enter_execve", decoded))[0]
     if len(bpf_entries) == 0:
         print("No sections found!")
         return
@@ -29,17 +30,22 @@ def fetch_pcsections(file_name: str) -> Dict[str, bytes]:
             return
         bpf_entries[i][0] = "pcsection" + bpf_entries[i][0][len(module_name):]
 
-    print(bpf_entries)
     sections = dict()
+    sizes = dict()
+    totalsize = 0
     with open("bin/object.o", "rb") as f:
         rawdata = f.read()
+        totalsize = len(rawdata)
     for entry in bpf_entries:
         name, size, _, _, file_off, _ = tuple(entry)
 
         size = int(size, 16)
         file_off = int(file_off, 16)
-        print(name, size, file_off)
         sections[name] = rawdata[file_off:file_off+size]
+        sizes[name] = size
 
-    print(sections)
+    _, bin_size, _, _, _, _ = text_size_entry
+    sizes["program_size"] = int(bin_size, 16)
+    sizes["total_size"] = totalsize
+    sections["metadata_sizes"] = sizes
     return sections

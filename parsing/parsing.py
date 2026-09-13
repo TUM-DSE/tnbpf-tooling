@@ -131,7 +131,7 @@ def parse_pcsections(pcsections: Dict[str, bytes]):
     sym_instr_db = parse_sym_instr_db(ByteTape(sym_instr_db_raw)) if sym_instr_db_raw else None
 
     # Our primary entry point is the loopdb classifier:
-    return symbounds, loopdb, functiondb, ivdb, sym_instr_db
+    return symbounds, loopdb, functiondb, ivdb, sym_instr_db, pcsections["metadata_sizes"]
 
 def get_and_parse(remote_name: str):
     return parse_pcsections(fetch_pcsections(remote_name))

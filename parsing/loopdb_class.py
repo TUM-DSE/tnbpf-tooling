@@ -75,7 +75,7 @@ def parse_loopdb_class(loopdb: ByteTape):
                 entry["loop_id"] = loop_id
                 if comp_type < 0 or comp_type > ComparisonType.C_UNK.value:
                     return None
-                entry["comp_type"] = comp_type
+                entry["comp_type"] = ComparisonType(comp_type)
 
                 latches = []
                 for k in range(latchCount):
