@@ -2,13 +2,16 @@ import re
 import unittest
 from typing import Dict, List
 
-from extraction import fetch_pcsections
+from multimodule import MultiModuleFile
 from parsing.functiondb import parse_functiondb
 from parsing.ivdb import parse_iv_db
 from parsing.loopdb_class import parse_loopdb_class
 from parsing.bytetape import ByteTape
 from parsing.symbounds import parse_loopdb_symbounds
 from parsing.sym_instr_db import parse_sym_instr_db
+from printing import pretty_print, humanbytes
+from extraction import fetch_pcsections
+
 
 percent_integer = re.compile("%[0-9]+")
 percent_iv = re.compile("%iv")
@@ -135,3 +138,31 @@ def parse_pcsections(pcsections: Dict[str, bytes]):
 
 def get_and_parse(remote_name: str):
     return parse_pcsections(fetch_pcsections(remote_name))
+
+
+def parse_multi(multi: MultiModuleFile, test: unittest.TestCase):
+    results = dict()
+    for module_name, pcsections in multi.modules.items():
+        symbounds_raw = pcsections[
+            "pcsection_loopdb_symbounds"] if "pcsection_loopdb_symbounds" in pcsections else None
+        loopdb_raw = pcsections["pcsection_loopdb_class"]
+        functiondb_raw = pcsections["pcsection_functiondb"]
+        ivdb_raw = pcsections["pcsection_iv_db"] if "pcsection_iv_db" in pcsections else None
+        sym_instr_db_raw = pcsections["pcsection_sym_instr_db"]
+
+        symbounds = parse_loopdb_symbounds(ByteTape(symbounds_raw)) if symbounds_raw else None
+        loopdb = parse_loopdb_class(ByteTape(loopdb_raw)) if loopdb_raw else None
+        functiondb = parse_functiondb(ByteTape(functiondb_raw)) if functiondb_raw else None
+        ivdb = parse_iv_db(ByteTape(ivdb_raw)) if ivdb_raw else None
+        sym_instr_db = parse_sym_instr_db(ByteTape(sym_instr_db_raw)) if sym_instr_db_raw else None
+
+
+        # test.assertIsNotNone(symbounds)
+        test.assertIsNotNone(loopdb)
+        test.assertIsNotNone(functiondb)
+        # test.assertIsNotNone(ivdb)
+        test.assertIsNotNone(sym_instr_db)
+        results[module_name] = validate(test, symbounds, loopdb, functiondb, ivdb, sym_instr_db)
+    pretty_print(results)
+
+    print(f"{test.__class__.__name__},{humanbytes(module_name.metadata_sizes)},{((module_name.metadata_sizes * 100.0) / module_name.text_size):.2f},{((module_name.metadata_sizes * 100.0) / module_name.total_size):.2f}\n")

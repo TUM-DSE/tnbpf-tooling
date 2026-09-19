@@ -3,6 +3,7 @@ from typing import Dict
 
 import credentials
 import subprocess
+from multimodule import MultiModuleFile
 
 def fetch_pcsections(file_name: str) -> Dict[str, bytes]:
     # copy over the binary
@@ -49,3 +50,18 @@ def fetch_pcsections(file_name: str) -> Dict[str, bytes]:
     sizes["total_size"] = totalsize
     sections["metadata_sizes"] = sizes
     return sections
+
+def fetch_pcsections_multimodule(file_name: str) -> MultiModuleFile:
+    # copy over the binary
+    os.system("rm -rf bin")
+    os.system("mkdir bin")
+    os.system("mkdir bin/sections")
+
+    os.system("scp " + credentials.gitrepo + file_name + " bin/object.o")
+    output = subprocess.check_output(["objdump", "-h", "bin/object.o"]).decode()
+
+
+    with open("bin/object.o", "rb") as f:
+        rawdata = f.read()
+
+    return MultiModuleFile(rawdata, output)
